@@ -47,9 +47,9 @@ app.get('/articles', function(request, response) {
 
 app.post('/articles', function(request, response) {
   client.query(`INSERT INTO
-    authors(author, authorUrl)
+    authors(author, "authorUrl")
     VALUES ($1, $2)
-    ON CONFLICT DO NOTHING
+    ON CONFLICT DO NOTHING;
     `,
     [
       request.body.author,
@@ -67,7 +67,7 @@ app.post('/articles', function(request, response) {
       articles(author_id, title, category, "publishedOn", body)
       SELECT author_id, $1, $2, $3, $4
       FROM authors
-      WHERE author=$5
+      WHERE author=$5;
       `,
       [
         request.body.title,
@@ -93,7 +93,7 @@ app.put('/articles/:id', function(request, response) {
   `
   UPDATE authors
   SET author=$1, "authorUrl"=$2
-  WHERE author_id=$3
+  WHERE author_id=$3;
   `,
     [
       request.body.author,
@@ -108,7 +108,7 @@ app.put('/articles/:id', function(request, response) {
       `
       UPDATE articles
       SET author_id=$1, title=$2, category=$3, "publishedOn"=$4, body=$5
-      WHERE article_id=$6
+      WHERE article_id=$6;
       `,
       [
         request.body.author_id,
@@ -116,7 +116,7 @@ app.put('/articles/:id', function(request, response) {
         request.body.category,
         request.body.publishedOn,
         request.body.body,
-        request.params.idea
+        request.params.id
       ]
     )
   })
