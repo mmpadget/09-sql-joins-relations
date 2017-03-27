@@ -46,18 +46,36 @@ app.get('/articles', function(request, response) {
 });
 
 app.post('/articles', function(request, response) {
-  client.query(
+  client.query(`INSERT INTO
+    authors(author, authorUrl)
+    VALUES ($1, $2)
+    ON CONFLICT DO NOTHING
+    `,
+    [
+      request.body.author,
+      request.body.authorUrl
+    ]
   // TODO: Write a SQL query to insert a new ***author***, ON CONFLICT DO NOTHING
   // TODO: Add author and "authorUrl" as data for the SQL query to interpolate
-    'Thing1',
-    [Thing2]
   )
   .then(function() {
     // TODO: Write a SQL query to insert a new ***article***, using a sub-query to retrieve the author_id from the authors table
     // TODO: Add the required values from the request as data for the SQL query to interpolate
     client.query(
-      `Thing1`,
-      [Thing2]
+      `
+      INSERT INTO
+      articles(author_id, title, category, "publishedOn", body)
+      SELECT author_id, $1, $2, $3, $4
+      FROM authors
+      WHERE author=$5
+      `,
+      [
+        request.body.title,
+        request.body.category,
+        request.body.publishedOn,
+        request.body.body,
+        request.body.author
+      ]
     )
   })
   .then(function() {
@@ -72,15 +90,34 @@ app.put('/articles/:id', function(request, response) {
   client.query(
   // TODO: Write a SQL query to update an ***author*** record
   // TODO: Add the required values from the request as data for the SQL query to interpolate
-    `Thing1`,
-    [Thing2]
-  )
+  `
+  UPDATE authors
+  SET author=$1, "authorUrl"=$2
+  WHERE author_id=$3
+  `,
+    [
+      request.body.author,
+      request.body.authorUrl,
+      request.body.author_id
+    ]
+)
   .then(function() {
     // TODO: Write a SQL query to update an **article*** record
     // TODO: Add the required values from the request as data for the SQL query to interpolate
     client.query(
-      `Thing1`,
-      [Thing2]
+      `
+      UPDATE articles
+      SET author_id=$1, title=$2, category=$3, "publishedOn"=$4, body=$5
+      WHERE article_id=$6
+      `,
+      [
+        request.body.author_id,
+        request.body.title,
+        request.body.category,
+        request.body.publishedOn,
+        request.body.body,
+        request.params.idea
+      ]
     )
   })
   .then(function() {
